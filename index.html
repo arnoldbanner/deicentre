@@ -477,6 +477,21 @@ function parseCSV(text) {
   });
 }
 
+// Convert Google Drive URLs to direct image URLs
+function toDirectImageUrl(url) {
+  if (!url) return url;
+  // Handle drive.google.com/open?id=FILE_ID
+  let match = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}=s1000`;
+  // Handle drive.google.com/file/d/FILE_ID/...
+  match = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}=s1000`;
+  // Handle drive.google.com/uc?id=FILE_ID or export=view&id=FILE_ID
+  match = url.match(/drive\.google\.com\/uc\?.*id=([a-zA-Z0-9_-]+)/);
+  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}=s1000`;
+  return url;
+}
+
 // Get all images for an artwork (supports Image 1 through Image 7)
 function getImages(artwork) {
   const images = [];
@@ -484,12 +499,12 @@ function getImages(artwork) {
   for (let i = 1; i <= 7; i++) {
     const key = `image ${i}`;
     if (artwork[key] && artwork[key].startsWith('http')) {
-      images.push(artwork[key]);
+      images.push(toDirectImageUrl(artwork[key]));
     }
   }
   // Fallback: check single "image" column
   if (images.length === 0 && artwork.image && artwork.image.startsWith('http')) {
-    images.push(artwork.image);
+    images.push(toDirectImageUrl(artwork.image));
   }
   return images;
 }
@@ -527,7 +542,7 @@ function loadViaGviz() {
         const rows = response.table.rows.map(row => {
           const obj = {};
           row.c.forEach((cell, i) => {
-            obj[headers[i]] = cell ? (cell.v != null ? String(cell.v) : '') : '';
+            obj[headers[i]] = cell ? (cell.v != null ? String(cell.v) : (cell.f != null ? String(cell.f) : '')) : '';
           });
           return obj;
         });
@@ -543,19 +558,19 @@ function loadViaGviz() {
   });
 }
 
-// Load data: try fetch first (works on web servers), fall back to JSONP (works locally)
+// Load data: use JSONP first (works everywhere including file://), CSV fetch as fallback
 async function loadData() {
   try {
-    const res = await fetch(GOOGLE_SHEET_CSV_URL);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    artworks = parseCSV(text).filter(a => a.title && a.title.trim());
-  } catch (fetchErr) {
-    console.warn('Fetch failed, trying JSONP fallback:', fetchErr.message);
+    artworks = (await loadViaGviz()).filter(a => a.title && a.title.trim());
+  } catch (gvizErr) {
+    console.warn('JSONP failed, trying CSV fetch:', gvizErr.message);
     try {
-      artworks = (await loadViaGviz()).filter(a => a.title && a.title.trim());
-    } catch (gvizErr) {
-      console.error('Both loading methods failed:', gvizErr);
+      const res = await fetch(GOOGLE_SHEET_CSV_URL);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const text = await res.text();
+      artworks = parseCSV(text).filter(a => a.title && a.title.trim());
+    } catch (fetchErr) {
+      console.error('Both loading methods failed:', fetchErr);
       artworks = [];
     }
   }

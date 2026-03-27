@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Dei Centre | Art Collection</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #141414;
+    --bg-card: #1a1a1a;
+    --bg-hover: #222222;
+    --text-primary: #f0ece4;
+    --text-secondary: #a09888;
+    --text-muted: #6a6054;
+    --accent: #c9a96e;
+    --accent-dim: #8a7444;
+    --border: #2a2520;
+    --border-light: #3a3530;
+    --shadow: rgba(0,0,0,0.4);
+    --radius: 6px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .site-header {
+    text-align: center;
+    padding: 60px 24px 40px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #111 0%, var(--bg-primary) 100%);
+  }
+  .header-logo {
+    width: 64px;
+    height: auto;
+    margin-bottom: 16px;
+    opacity: 0.85;
+  }
+  .header-logo path { fill: var(--accent); }
+  .site-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+  .site-header .subtitle {
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+  .collection-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .stat-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* LOADING */
+  .loading-state {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 80px 24px;
+    text-align: center;
+  }
+  .loading-spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-state p { color: var(--text-muted); font-size: 0.9rem; }
+
+  /* TOOLBAR */
+  .toolbar {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 24px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  .search-box { flex: 1; min-width: 240px; position: relative; }
+  .search-box input {
+    width: 100%;
+    padding: 10px 16px 10px 40px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box input::placeholder { color: var(--text-muted); }
+  .search-box input:focus { border-color: var(--accent-dim); }
+  .search-box svg {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--text-muted); width: 18px; height: 18px;
+  }
+  .filter-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-select {
+    padding: 10px 32px 10px 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer; outline: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236a6054' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: border-color 0.2s;
+  }
+  .filter-select:focus { border-color: var(--accent-dim); }
+  .view-toggle {
+    display: flex; border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .view-btn {
+    padding: 9px 14px; background: var(--bg-secondary); border: none;
+    color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center;
+  }
+  .view-btn.active { background: var(--bg-hover); color: var(--accent); }
+  .view-btn svg { width: 18px; height: 18px; }
+  .results-info {
+    width: 100%; padding: 12px 0 0;
+    font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.05em;
+  }
+
+  /* GRID VIEW */
+  .gallery {
+    max-width: 1400px; margin: 0 auto; padding: 24px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;
+  }
+  .art-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .art-card:hover {
+    transform: translateY(-3px); border-color: var(--border-light);
+    box-shadow: 0 8px 30px var(--shadow);
+  }
+  .card-image {
+    width: 100%; aspect-ratio: 4/3; overflow: hidden;
+    background: var(--bg-secondary); position: relative;
+  }
+  .card-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+  .art-card:hover .card-image img { transform: scale(1.05); }
+  .card-image .no-image {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); font-size: 0.8rem; letter-spacing: 0.1em;
+  }
+  .condition-badge {
+    position: absolute; top: 10px; right: 10px;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 0.65rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .multi-badge {
+    position: absolute; top: 10px; left: 10px;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 0.65rem; font-weight: 600; letter-spacing: 0.05em;
+    background: rgba(0,0,0,0.6); color: var(--text-secondary);
+  }
+  .condition-excellent { background: #1a3a2a; color: #6fcf97; }
+  .condition-good { background: #2a3520; color: #a8d86e; }
+  .condition-fair { background: #3a3020; color: #d4a843; }
+  .condition-poor { background: #3a2020; color: #cf6f6f; }
+  .condition-unknown { background: #2a2a2a; color: #888; }
+  .condition-broken-glass { background: #3a2020; color: #cf6f6f; }
+
+  .card-info { padding: 16px; }
+  .card-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.15rem;
+    font-weight: 600; color: var(--text-primary); margin-bottom: 4px; line-height: 1.3;
+  }
+  .card-artist { font-size: 0.85rem; color: var(--accent); margin-bottom: 10px; }
+  .card-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+  .meta-tag {
+    padding: 3px 8px; background: var(--bg-secondary); border-radius: 3px;
+    font-size: 0.72rem; color: var(--text-secondary); letter-spacing: 0.02em;
+  }
+
+  /* LIST VIEW */
+  .gallery.list-view { grid-template-columns: 1fr; gap: 2px; }
+  .list-view .art-card { display: grid; grid-template-columns: 120px 1fr; border-radius: 0; }
+  .list-view .art-card:first-child { border-radius: var(--radius) var(--radius) 0 0; }
+  .list-view .art-card:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+  .list-view .card-image { aspect-ratio: 1; }
+  .list-view .card-info { display: flex; align-items: center; gap: 20px; padding: 12px 20px; }
+  .list-view .card-title { margin-bottom: 0; min-width: 200px; }
+  .list-view .card-artist { margin-bottom: 0; min-width: 150px; }
+  .list-view .card-meta { flex-wrap: nowrap; }
+  .list-view .art-card:hover { transform: none; background: var(--bg-hover); }
+  .list-view .multi-badge { display: none; }
+
+  /* DETAIL MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    z-index: 1000; overflow-y: auto; padding: 40px 20px; backdrop-filter: blur(4px);
+  }
+  .modal-overlay.active { display: flex; justify-content: center; align-items: flex-start; }
+  .modal {
+    background: var(--bg-secondary); border: 1px solid var(--border);
+    border-radius: 10px; max-width: 900px; width: 100%;
+    overflow: hidden; position: relative; animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.5);
+    border: none; color: var(--text-secondary); width: 36px; height: 36px;
+    border-radius: 50%; cursor: pointer; font-size: 1.2rem; z-index: 10;
+    display: flex; align-items: center; justify-content: center; transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--text-primary); }
+
+  /* MODAL IMAGE GALLERY */
+  .modal-gallery {
+    width: 100%; max-height: 500px; overflow: hidden;
+    background: var(--bg-primary); position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-gallery img {
+    width: 100%; height: 100%; object-fit: contain; max-height: 500px;
+  }
+  .gallery-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(0,0,0,0.6); border: none; color: var(--text-secondary);
+    width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+    font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; z-index: 5;
+  }
+  .gallery-nav:hover { background: rgba(0,0,0,0.8); color: var(--text-primary); }
+  .gallery-nav.prev { left: 12px; }
+  .gallery-nav.next { right: 12px; }
+  .gallery-nav.hidden { display: none; }
+  .gallery-dots {
+    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 6px; z-index: 5;
+  }
+  .gallery-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.3); border: none; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .gallery-dot.active { background: var(--accent); }
+  .gallery-counter {
+    position: absolute; top: 12px; left: 12px;
+    background: rgba(0,0,0,0.6); padding: 3px 10px; border-radius: 20px;
+    font-size: 0.7rem; color: var(--text-secondary); z-index: 5;
+  }
+
+  .modal-body { padding: 32px; }
+  .modal-title {
+    font-family: 'Cormorant Garamond', serif; font-size: 2rem;
+    font-weight: 500; margin-bottom: 4px;
+  }
+  .modal-artist { font-size: 1rem; color: var(--accent); margin-bottom: 24px; }
+  .modal-details {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;
+  }
+  .detail-label {
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 4px;
+  }
+  .detail-value { font-size: 0.95rem; color: var(--text-secondary); }
+
+  /* EMPTY STATE */
+  .empty-state { grid-column: 1 / -1; text-align: center; padding: 80px 20px; }
+  .empty-state p { color: var(--text-muted); font-size: 0.95rem; }
+
+  /* FOOTER */
+  .site-footer {
+    text-align: center; padding: 40px 24px;
+    border-top: 1px solid var(--border); margin-top: 40px;
+  }
+  .site-footer p { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.1em; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .site-header { padding: 40px 16px 28px; }
+    .header-logo { width: 48px; }
+    .toolbar { padding: 16px 16px 0; }
+    .gallery { padding: 16px; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    .list-view .art-card { grid-template-columns: 80px 1fr; }
+    .list-view .card-info { flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 14px; }
+    .modal-body { padding: 20px; }
+    .modal-title { font-size: 1.5rem; }
+    .collection-stats { gap: 24px; }
+  }
+  @media (max-width: 480px) {
+    .gallery { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .card-info { padding: 10px; }
+    .card-title { font-size: 1rem; }
+    .filter-group { width: 100%; }
+    .filter-select { flex: 1; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <svg class="header-logo" viewBox="0 0 8332 7952" xmlns="http://www.w3.org/2000/svg" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,1,-1.703403,-187.810872)">
+      <g transform="matrix(8.146771,0,0,8.146771,-3.146848,187.810872)">
+        <path d="M46.493,119.842C68.468,121.66 68.27,124.945 124.783,181.212C248.95,304.702 373.117,428.191 497.283,551.68C498.857,553.247 494.605,556.548 481.604,569.604C435.531,615.872 435.754,617.181 433.464,616.596C432.018,616.227 419.909,601.131 374.252,555.755C345.198,526.879 18.221,201.915 12.031,193.852C-11.236,163.548 1.369,122.244 46.493,119.842Z"/>
+        <path d="M1018.101,815.521C1018.063,819.44 1020.304,842.255 994.416,856.344C967.136,871.19 946.637,852.154 943.632,849.364C940.067,846.053 633.731,540.115 606.794,513.213C523.061,429.59 523.054,429.352 523.03,428.522C522.993,427.222 523.457,427.404 562.241,389.236C584.384,367.445 584.863,366.492 586.4,367.654C587.037,368.135 725.674,506.763 728.912,510.099C735.295,516.673 735.575,516.377 810.007,590.972C920.521,701.73 920.395,701.756 930.921,712.065C937.272,718.285 1002.288,781.961 1008.996,791.132C1017.742,803.09 1017.576,811.562 1018.101,815.521Z"/>
+        <path d="M813.5,0L825.5,0C827.066,0.737 826.821,1.054 828.517,1.42C855.402,7.218 859.925,28.025 860.673,31.465C868.012,65.228 845.068,81.218 839.514,86.514C801.015,123.225 490.908,434.344 460.677,464.674C447.942,477.45 446.951,479.777 443.629,476.373C434.426,466.944 384.484,417.072 383.875,416.254C382.403,414.278 398.903,400.429 428.283,371.278C446.915,352.791 625.237,175.858 660.505,139.505C684.691,114.575 733.583,66.316 739.983,59.998C792.592,8.069 794.046,4.319 810.47,1.353C812.167,1.047 811.93,0.701 813.5,0Z"/>
+        <path d="M214.55,970.95C174.91,974.392 152.479,931.269 174.103,901.208C180.265,892.643 180.94,893.247 425.161,649.162C559.251,515.146 570.484,503.215 572.514,503.367C573.87,503.468 573.69,503.947 616.701,547.308C633.745,564.491 635.453,565.142 633.326,567.347C613.668,587.717 576.119,624.196 571.089,629.083C545.371,654.068 272.571,926.732 246.645,952.646C239.492,959.795 231.605,968.747 214.55,970.95Z"/>
+        <path d="M985.575,115.039C1028.694,123.557 1028.889,167.645 1015.387,184.412C1005.181,197.087 763.676,435.533 724.376,476.379C721.368,479.505 720.462,477.091 704.181,460.818C660.06,416.719 658.007,415.808 659.895,413.829C676.84,396.069 677.768,397.025 877.451,197.452C953.863,121.082 953.898,120.329 965.53,116.597C975.483,113.405 979.499,114.287 985.575,115.039Z"/>
+        <path d="M44.534,855.14C38.644,854.286 21.429,853.78 9.858,831.319C3.897,819.747 2.927,800.467 16.589,783.573C21.782,777.152 294.627,505.177 294.877,504.949C298.094,502.01 298.498,505.518 357.243,563.751C360.787,567.264 357.404,567.962 337.779,587.772C337.017,588.542 170.895,753.287 120.859,803.85C76.607,848.568 73.923,856.203 44.534,855.14Z"/>
+        <path d="M364.304,271.689C349.176,256.657 241.765,149.932 175.707,83.288C132.327,39.525 191.19,-19.536 233.424,15.59C238.905,20.148 494.689,275.937 496.218,277.706C497.835,279.577 496.493,280.261 461.687,314.695C435.19,340.91 435.503,341.8 433.484,341.669C431.995,341.572 399.513,307.198 364.304,271.689Z"/>
+        <path d="M822.5,975.999L804.5,975.999C789.536,968.764 788.897,969.55 777.214,957.782C747.377,927.729 523.705,705.176 523.244,703.615C522.26,700.285 525.612,701.776 553.065,672.07C556.635,668.207 578.784,646.398 582.929,641.924C585.315,639.349 586.204,641.494 610.808,666.193C847.156,903.446 849.12,902.36 854.166,914.647C855.808,918.647 867.395,946.865 841.202,967.119C831.664,974.495 823.747,974.949 823.647,974.991C823.177,975.186 822.97,975.804 822.5,975.999Z"/>
+        <path d="M156.091,187.4C156.501,186.234 156.442,183.399 169.752,169.753C173.927,165.473 182.389,158.358 182.881,157.997C206.821,140.444 210.298,140.601 219.867,150.136C235.013,165.231 402.502,332.139 408.952,339.061C419.311,350.176 423.396,350.505 419.394,354.395C393.49,379.572 394.184,380.174 368.245,405.223C366.343,407.06 365.173,405.285 361.918,401.182C342.548,376.767 316.913,353.942 218.224,254.77C162.19,198.461 155.688,195.864 156.091,187.4Z"/>
+        <path d="M277.6,771.597C201.431,848.239 201.02,848.886 199.6,848.218C177.162,837.649 147.052,802.614 150.675,797.624C150.827,797.413 367.026,579.573 367.401,579.361C369.876,577.959 370.153,579.659 415.729,626.281C418.736,629.357 418.391,630.239 415.313,633.31C379.366,669.18 308.887,740.336 277.6,771.597Z"/>
+        <path d="M743.697,673.298C852.785,782.319 853.701,782.008 854.748,786.452C857.748,799.189 814.855,845.478 808.809,841.085C808.691,840.999 605.836,636.891 599.514,630.486C595.831,626.755 598.538,626.012 605.26,619.258C608.413,616.091 637.427,586.944 644.576,579.577C648.253,575.788 649.131,578.661 659.303,588.705C697.202,626.126 736.986,666.49 743.697,673.298Z"/>
+        <path d="M133.985,637.364C134.507,627.186 134.201,349.065 134.128,348.401C133.676,344.285 137.408,348.957 165.549,377.452C217.042,429.593 278.682,491.184 279.134,492.57C279.634,494.107 278.771,493.912 265.364,507.361C136.659,636.469 136.886,636.7 135.331,638.066C134.883,637.832 134.434,637.598 133.985,637.364Z"/>
+        <path d="M515.735,724.264C642.03,850.995 641.815,851.088 647.88,857.116C648.313,857.547 654.107,861.868 649.55,861.829C640.743,861.753 640.756,861.734 375.5,861.737C370.82,861.737 364.891,862.44 365.192,860.432C365.206,860.336 506.251,718.083 506.7,717.763C509.019,716.114 514.381,722.877 515.735,724.264Z"/>
+        <path d="M770.704,277.709C769.516,278.909 699.267,349.014 647.882,399.886C644.121,403.611 643.569,400.592 638.455,395.545C635.074,392.209 597.309,354.94 597.546,352.507C597.617,351.778 597.862,351.83 677.23,272.239C687.096,262.345 799.766,149.357 800.615,148.634C804.231,145.555 826.239,164.426 833.049,171.926C836.411,175.629 852.852,195.527 850.365,198.401C849.968,198.86 849.954,198.845 770.704,277.709Z"/>
+        <path d="M505.507,261.493C502.961,259.049 488.983,244.897 487.552,243.448C387.008,141.647 386.038,142.607 377.757,133.323C376.064,131.424 380.241,131.562 380.501,131.57C381.659,131.609 381.658,131.604 615.5,131.604C637.19,131.604 641.617,131.044 638.551,133.539C636.896,134.886 629.836,142.08 614.461,157.459C610.221,161.7 562.435,209.496 561.486,210.487C557.769,214.369 537.875,235.146 514.056,258.07C510.049,261.926 509.791,265.039 505.507,261.493Z"/>
+        <path d="M865.95,367.5C865.95,620.054 866.002,620.476 865.511,620.52C864.492,620.612 862.69,618.36 842.214,597.785C744.769,499.866 736.268,491.58 736.208,490.525C736.121,488.99 736.846,489.142 834.703,390.696C836.418,388.971 849.254,376.057 856.201,369.191C863.318,362.155 866.065,357.876 866.086,362.516C866.088,362.915 866.076,362.885 865.95,367.5Z"/>
+        <path d="M472.303,476.294C475.338,473.265 507.982,441.171 508.65,440.984C509.113,440.855 509.463,440.757 557.214,488.779C559.339,490.916 558.597,491.683 554.102,496.096C544.497,505.524 544.455,505.381 534.821,514.824C510.486,538.675 508.561,541.587 506.417,540.632C506.111,540.495 459.881,492.942 459.478,492.52C457.029,489.952 459.807,488.436 472.303,476.294Z"/>
+        <path d="M133.985,637.364C134.434,637.598 134.883,637.832 135.331,638.066C133.901,641.344 132.905,639.605 132.934,639.388C133.035,638.634 133.884,638.118 133.985,637.364Z"/>
+      </g>
+    </g>
+  </svg>
+  <h1>The Dei Centre</h1>
+  <p class="subtitle">Art Collection Catalog</p>
+  <div class="collection-stats">
+    <div class="stat">
+      <div class="stat-number" id="totalPieces">0</div>
+      <div class="stat-label">Pieces</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number" id="totalArtists">0</div>
+      <div class="stat-label">Artists</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number" id="totalMediums">0</div>
+      <div class="stat-label">Mediums</div>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar" id="toolbar" style="display:none;">
+  <div class="search-box">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="searchInput" placeholder="Search by title, artist, or medium...">
+  </div>
+  <div class="filter-group">
+    <select class="filter-select" id="artistFilter"><option value="">All Artists</option></select>
+    <select class="filter-select" id="mediumFilter"><option value="">All Mediums</option></select>
+    <select class="filter-select" id="locationFilter"><option value="">All Locations</option></select>
+    <select class="filter-select" id="conditionFilter"><option value="">All Conditions</option></select>
+    <select class="filter-select" id="yearFilter"><option value="">All Years</option></select>
+  </div>
+  <div class="view-toggle">
+    <button class="view-btn active" id="gridBtn" title="Grid view">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    </button>
+    <button class="view-btn" id="listBtn" title="List view">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="results-info" id="resultsInfo"></div>
+</div>
+
+<div class="loading-state" id="loadingState">
+  <div class="loading-spinner"></div>
+  <p>Loading collection...</p>
+</div>
+
+<div class="gallery" id="gallery" style="display:none;"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">&times;</button>
+    <div class="modal-gallery" id="modalGallery"></div>
+    <div class="modal-body">
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <p class="modal-artist" id="modalArtist"></p>
+      <div class="modal-details" id="modalDetails"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <p>&copy; The Dei Centre. Collection Catalog.</p>
+</footer>
+
+<script>
+// ============================================================
+// CONFIGURATION
+// ============================================================
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQdwTa5a7SW87Stj7OcOMQd9w2x4IR5gGZMt-Zl6nJV92aqUyoDK2Z2BYGov1cytQ/pub?gid=514404343&single=true&output=csv';
+const SHEET_GID = '514404343';
+// ============================================================
+
+// Placeholder image generator
+function generatePlaceholder(title, artist) {
+  const colors = [
+    ['#2d1f0f','#c9a96e'],['#0f1f2d','#6ea8c9'],['#1f0f2d','#a86ec9'],
+    ['#0f2d1f','#6ec9a8'],['#2d0f0f','#c96e6e'],['#1f2d0f','#8ac96e'],
+    ['#2d2d0f','#c9c96e'],['#0f2d2d','#6ec9c9']
+  ];
+  const hash = ((title||'')+(artist||'')).split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const [bg, fg] = colors[hash % colors.length];
+  const initials = (title||'?').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+  return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="${bg}" width="400" height="300"/><text x="200" y="158" font-family="Georgia,serif" font-size="48" fill="${fg}" text-anchor="middle" opacity="0.6">${initials}</text></svg>`)}`;
+}
+
+// State
+let artworks = [];
+let filteredArtworks = [];
+let viewMode = 'grid';
+let modalImageIndex = 0;
+let modalImages = [];
+
+// Parse CSV from Google Sheets
+function parseCSV(text) {
+  text = text.replace(/^\uFEFF/, '');
+  const lines = text.split('\n');
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+  return lines.slice(1).filter(line => line.trim()).map(line => {
+    const values = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === '"') { inQuotes = !inQuotes; }
+      else if (line[i] === ',' && !inQuotes) { values.push(current.trim()); current = ''; }
+      else { current += line[i]; }
+    }
+    values.push(current.trim());
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = values[i] || ''; });
+    return obj;
+  });
+}
+
+// Get all images for an artwork (supports Image 1 through Image 7)
+function getImages(artwork) {
+  const images = [];
+  // Check for "image 1" through "image 7" columns
+  for (let i = 1; i <= 7; i++) {
+    const key = `image ${i}`;
+    if (artwork[key] && artwork[key].startsWith('http')) {
+      images.push(artwork[key]);
+    }
+  }
+  // Fallback: check single "image" column
+  if (images.length === 0 && artwork.image && artwork.image.startsWith('http')) {
+    images.push(artwork.image);
+  }
+  return images;
+}
+
+// Get the primary (first) image for thumbnails
+function getPrimaryImage(artwork) {
+  const images = getImages(artwork);
+  return images.length > 0 ? images[0] : generatePlaceholder(artwork.title, artwork.artist);
+}
+
+// Parse Google Visualization API JSON response into array of objects
+function parseGvizResponse(jsonText) {
+  const data = JSON.parse(jsonText);
+  if (!data.table) return [];
+  const headers = data.table.cols.map(c => (c.label || '').toLowerCase().trim());
+  return data.table.rows.map(row => {
+    const obj = {};
+    row.c.forEach((cell, i) => {
+      obj[headers[i]] = cell ? (cell.v != null ? String(cell.v) : '') : '';
+    });
+    return obj;
+  });
+}
+
+// Load via Google Visualization API (JSONP, works from file:// and any origin)
+function loadViaGviz() {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'gvizCallback_' + Date.now();
+    const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vQdwTa5a7SW87Stj7OcOMQd9w2x4IR5gGZMt-Zl6nJV92aqUyoDK2Z2BYGov1cytQ/gviz/tq?tqx=out:json;responseHandler:${callbackName}&gid=${SHEET_GID}`;
+    window[callbackName] = function(response) {
+      delete window[callbackName];
+      script.remove();
+      try {
+        const headers = response.table.cols.map(c => (c.label || '').toLowerCase().trim());
+        const rows = response.table.rows.map(row => {
+          const obj = {};
+          row.c.forEach((cell, i) => {
+            obj[headers[i]] = cell ? (cell.v != null ? String(cell.v) : '') : '';
+          });
+          return obj;
+        });
+        resolve(rows);
+      } catch (e) {
+        reject(e);
+      }
+    };
+    const script = document.createElement('script');
+    script.src = url;
+    script.onerror = () => { delete window[callbackName]; reject(new Error('JSONP load failed')); };
+    document.head.appendChild(script);
+  });
+}
+
+// Load data: try fetch first (works on web servers), fall back to JSONP (works locally)
+async function loadData() {
+  try {
+    const res = await fetch(GOOGLE_SHEET_CSV_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    artworks = parseCSV(text).filter(a => a.title && a.title.trim());
+  } catch (fetchErr) {
+    console.warn('Fetch failed, trying JSONP fallback:', fetchErr.message);
+    try {
+      artworks = (await loadViaGviz()).filter(a => a.title && a.title.trim());
+    } catch (gvizErr) {
+      console.error('Both loading methods failed:', gvizErr);
+      artworks = [];
+    }
+  }
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('toolbar').style.display = '';
+  document.getElementById('gallery').style.display = '';
+  populateFilters();
+  applyFilters();
+  updateStats();
+}
+
+// Populate filter dropdowns
+function populateFilters() {
+  const unique = (key) => [...new Set(artworks.map(a => a[key]).filter(Boolean))].sort();
+  const fill = (id, values) => {
+    const el = document.getElementById(id);
+    const label = el.options[0].text;
+    el.innerHTML = `<option value="">${label}</option>`;
+    values.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v; opt.textContent = v; el.appendChild(opt);
+    });
+  };
+  fill('artistFilter', unique('artist'));
+  fill('mediumFilter', unique('medium'));
+  fill('locationFilter', unique('location'));
+  fill('conditionFilter', unique('condition'));
+  fill('yearFilter', unique('year'));
+}
+
+// Update stats
+function updateStats() {
+  document.getElementById('totalPieces').textContent = artworks.length;
+  document.getElementById('totalArtists').textContent = new Set(artworks.map(a=>a.artist).filter(Boolean)).size;
+  document.getElementById('totalMediums').textContent = new Set(artworks.map(a=>a.medium).filter(Boolean)).size;
+}
+
+// Apply filters
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const artist = document.getElementById('artistFilter').value;
+  const medium = document.getElementById('mediumFilter').value;
+  const location = document.getElementById('locationFilter').value;
+  const condition = document.getElementById('conditionFilter').value;
+  const year = document.getElementById('yearFilter').value;
+
+  filteredArtworks = artworks.filter(a => {
+    if (q && !((a.title||'').toLowerCase().includes(q) || (a.artist||'').toLowerCase().includes(q) || (a.medium||'').toLowerCase().includes(q) || (a.tags||'').toLowerCase().includes(q))) return false;
+    if (artist && a.artist !== artist) return false;
+    if (medium && a.medium !== medium) return false;
+    if (location && a.location !== location) return false;
+    if (condition && a.condition !== condition) return false;
+    if (year && a.year !== year) return false;
+    return true;
+  });
+
+  document.getElementById('resultsInfo').textContent = `Showing ${filteredArtworks.length} of ${artworks.length} pieces`;
+  renderGallery();
+}
+
+// Render gallery
+function renderGallery() {
+  const gallery = document.getElementById('gallery');
+  gallery.className = `gallery${viewMode === 'list' ? ' list-view' : ''}`;
+
+  if (filteredArtworks.length === 0) {
+    gallery.innerHTML = '<div class="empty-state"><p>No artworks match your current filters.</p></div>';
+    return;
+  }
+
+  gallery.innerHTML = filteredArtworks.map((a, i) => {
+    const imgSrc = getPrimaryImage(a);
+    const cond = (a.condition || '').toLowerCase().replace(/\s+/g, '-');
+    const condClass = cond ? `condition-${cond}` : 'condition-unknown';
+    const imageCount = getImages(a).length;
+    const multiBadge = imageCount > 1 ? `<span class="multi-badge">${imageCount} images</span>` : '';
+    return `
+      <div class="art-card" data-index="${i}">
+        <div class="card-image">
+          <img src="${imgSrc}" alt="${a.title || ''}" loading="lazy" onerror="this.src='${generatePlaceholder(a.title, a.artist)}'">
+          <span class="condition-badge ${condClass}">${a.condition || 'N/A'}</span>
+          ${multiBadge}
+        </div>
+        <div class="card-info">
+          <div class="card-title">${a.title || 'Untitled'}</div>
+          <div class="card-artist">${a.artist || 'Unknown'}</div>
+          <div class="card-meta">
+            ${a.medium ? `<span class="meta-tag">${a.medium}</span>` : ''}
+            ${a.year ? `<span class="meta-tag">${a.year}</span>` : ''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  gallery.querySelectorAll('.art-card').forEach(card => {
+    card.addEventListener('click', () => openModal(filteredArtworks[+card.dataset.index]));
+  });
+}
+
+// Modal with image gallery
+function openModal(a) {
+  modalImages = getImages(a);
+  modalImageIndex = 0;
+
+  const galleryEl = document.getElementById('modalGallery');
+
+  if (modalImages.length === 0) {
+    modalImages = [generatePlaceholder(a.title, a.artist)];
+  }
+
+  renderModalGallery();
+
+  document.getElementById('modalTitle').textContent = a.title || 'Untitled';
+  document.getElementById('modalArtist').textContent = a.artist || 'Unknown';
+  document.getElementById('modalDetails').innerHTML = [
+    ['Medium', a.medium],
+    ['Dimensions', a.dimensions],
+    ['Year', a.year],
+    ['Location', a.location],
+    ['Condition', a.condition],
+    ['Tags', a.tags]
+  ].filter(([,v]) => v).map(([label, value]) =>
+    `<div class="detail-item"><div class="detail-label">${label}</div><div class="detail-value">${value}</div></div>`
+  ).join('');
+
+  document.getElementById('modalOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderModalGallery() {
+  const galleryEl = document.getElementById('modalGallery');
+  const hasMultiple = modalImages.length > 1;
+  const placeholder = generatePlaceholder('', '');
+
+  let html = `<img src="${modalImages[modalImageIndex]}" alt="Artwork" onerror="this.src='${placeholder}'">`;
+
+  if (hasMultiple) {
+    html += `<button class="gallery-nav prev ${modalImageIndex === 0 ? 'hidden' : ''}" onclick="navGallery(-1)">&larr;</button>`;
+    html += `<button class="gallery-nav next ${modalImageIndex === modalImages.length - 1 ? 'hidden' : ''}" onclick="navGallery(1)">&rarr;</button>`;
+    html += `<span class="gallery-counter">${modalImageIndex + 1} / ${modalImages.length}</span>`;
+    html += `<div class="gallery-dots">`;
+    for (let i = 0; i < modalImages.length; i++) {
+      html += `<button class="gallery-dot ${i === modalImageIndex ? 'active' : ''}" onclick="goToImage(${i})"></button>`;
+    }
+    html += `</div>`;
+  }
+
+  galleryEl.innerHTML = html;
+}
+
+function navGallery(dir) {
+  modalImageIndex = Math.max(0, Math.min(modalImages.length - 1, modalImageIndex + dir));
+  renderModalGallery();
+}
+
+function goToImage(idx) {
+  modalImageIndex = idx;
+  renderModalGallery();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Event listeners
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+document.getElementById('artistFilter').addEventListener('change', applyFilters);
+document.getElementById('mediumFilter').addEventListener('change', applyFilters);
+document.getElementById('locationFilter').addEventListener('change', applyFilters);
+document.getElementById('conditionFilter').addEventListener('change', applyFilters);
+document.getElementById('yearFilter').addEventListener('change', applyFilters);
+
+document.getElementById('gridBtn').addEventListener('click', () => {
+  viewMode = 'grid';
+  document.getElementById('gridBtn').classList.add('active');
+  document.getElementById('listBtn').classList.remove('active');
+  renderGallery();
+});
+document.getElementById('listBtn').addEventListener('click', () => {
+  viewMode = 'list';
+  document.getElementById('listBtn').classList.add('active');
+  document.getElementById('gridBtn').classList.remove('active');
+  renderGallery();
+});
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if (document.getElementById('modalOverlay').classList.contains('active')) {
+    if (e.key === 'ArrowLeft') navGallery(-1);
+    if (e.key === 'ArrowRight') navGallery(1);
+  }
+});
+
+// Init
+loadData();
+</script>
+
+</body>
+</html>

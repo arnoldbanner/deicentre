@@ -530,7 +530,7 @@
 // ============================================================
 // CONFIGURATION
 // ============================================================
-const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQdwTa5a7SW87Stj7OcOMQd9w2x4IR5gGZMt-Zl6nJV92aqUyoDK2Z2BYGov1cytQ/pub?gid=514404343&single=true&output=csv';
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTCgc7Badid6AoNKmpjKsTTSp59ff19UC2I1RomN876EIC_Xqn5L63axKUwMI1Qaw/pub?gid=514404343&single=true&output=csv';
 const SHEET_GID = '514404343';
 // ============================================================
 
@@ -632,7 +632,7 @@ function parseGvizResponse(jsonText) {
 function loadViaGviz() {
   return new Promise((resolve, reject) => {
     const callbackName = 'gvizCallback_' + Date.now();
-    const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vQdwTa5a7SW87Stj7OcOMQd9w2x4IR5gGZMt-Zl6nJV92aqUyoDK2Z2BYGov1cytQ/gviz/tq?tqx=out:json;responseHandler:${callbackName}&gid=${SHEET_GID}`;
+    const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTCgc7Badid6AoNKmpjKsTTSp59ff19UC2I1RomN876EIC_Xqn5L63axKUwMI1Qaw/gviz/tq?tqx=out:json;responseHandler:${callbackName}&gid=${SHEET_GID}`;
     window[callbackName] = function(response) {
       delete window[callbackName];
       script.remove();
